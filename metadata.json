@@ -1,0 +1,5 @@
+{
+  "name": "PetFlow - Dispensador Inteligente para Mascotas",
+  "description": "Una interfaz elegante y moderna para monitorear y controlar tu dispensador de comida inteligente para mascotas. Programa alimentaciones, dispensa comida a pedido y obtén planes de comidas personalizados con IA para tu amigo peludo.",
+  "requestFramePermissions": []
+}

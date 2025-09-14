@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  petflow:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        API_KEY: "AIzaSyBIEOaEnDPTSKjvKzz4UkwdAC-hI76ncaY"
+    ports:
+      - "8080:80"   # Contenedor escucha en 80, host en 8080
+    restart: unless-stopped
