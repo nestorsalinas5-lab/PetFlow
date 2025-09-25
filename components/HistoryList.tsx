@@ -13,7 +13,7 @@ export const HistoryList: React.FC<HistoryListProps> = ({ history }) => {
       <div className="card-header">
         <h2 className="h5 mb-0">
           <i className="fa-solid fa-clock-rotate-left me-2 text-secondary"></i>
-          Historial de Alimentación
+          Historial de Dispensación
         </h2>
       </div>
       <div className="card-body">
@@ -21,32 +21,35 @@ export const HistoryList: React.FC<HistoryListProps> = ({ history }) => {
           <ul className="list-group list-group-flush" style={{ maxHeight: '300px', overflowY: 'auto' }}>
             {history.map(entry => {
               const timeAgoOptions = { addSuffix: true, locale: es };
-              const icon = entry.type === 'Scheduled' 
-                ? 'fa-solid fa-calendar-check text-success' 
-                : 'fa-solid fa-hand text-primary';
+              const isFood = entry.substance === 'Food';
+              const icon = isFood ? 'fa-solid fa-bowl-food' : 'fa-solid fa-tint';
+              const color = entry.type === 'Scheduled' ? 'text-success' : 'text-primary';
+              const unit = isFood ? 'g' : 'ml';
+              const title = `${isFood ? 'Comida' : 'Agua'} (${entry.type === 'Scheduled' ? 'Programada' : 'Manual'})`;
               
               return (
                 <li key={entry.id} className="list-group-item d-flex justify-content-between align-items-center">
                   <div className="d-flex align-items-center">
-                    <i className={`${icon} fs-4 me-3`}></i>
+                    <i className={`${icon} ${color} fs-4 me-3`}></i>
                     <div>
                       <p className="fw-semibold mb-0">
-                        Dispensación {entry.type === 'Scheduled' ? 'Programada' : 'Manual'}
+                        {title}
                       </p>
                       <p className="text-muted small mb-0">
                         {formatDistanceToNow(entry.time, timeAgoOptions)}
+                        {entry.pet && ` • Para: ${entry.pet}`}
                       </p>
                     </div>
                   </div>
                   <span className="badge bg-secondary rounded-pill">
-                    {entry.amount}g
+                    {entry.amount}{unit}
                   </span>
                 </li>
               );
             })}
           </ul>
         ) : (
-          <p className="text-muted text-center py-5">Aún no hay historial de alimentación.</p>
+          <p className="text-muted text-center py-5">Aún no hay historial de dispensación.</p>
         )}
       </div>
     </div>

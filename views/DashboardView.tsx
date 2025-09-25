@@ -9,9 +9,11 @@ import { es } from 'date-fns/locale';
 
 interface DashboardViewProps {
   foodLevel: number;
+  waterLevel: number;
   lastFed?: Date;
   nextFeeding: string;
   onDispense: (amount: number) => void;
+  onDispenseWater: (amount: number) => void;
   isDispensing: boolean;
   schedules: Schedule[];
   onToggleSchedule: (id: number) => void;
@@ -28,8 +30,9 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
     return (
         <div className="container-fluid">
             <h1 className="h2 mb-4">Dashboard</h1>
+            
             <div className="row g-4">
-                <div className="col-12 col-sm-6 col-lg-4">
+                <div className="col-12 col-sm-6 col-lg-3">
                     <StatusCard
                         icon="fa-solid fa-bowl-food"
                         title="Nivel de Comida"
@@ -37,14 +40,22 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
                         progress={props.foodLevel}
                     />
                 </div>
-                <div className="col-12 col-sm-6 col-lg-4">
+                <div className="col-12 col-sm-6 col-lg-3">
+                    <StatusCard
+                        icon="fa-solid fa-droplet"
+                        title="Nivel de Agua"
+                        value={`${Math.round(props.waterLevel)}%`}
+                        progress={props.waterLevel}
+                    />
+                </div>
+                <div className="col-12 col-sm-6 col-lg-3">
                     <StatusCard
                         icon="fa-solid fa-clock"
-                        title="Última Vez Alimentado"
+                        title="Última Dispensación"
                         value={formatLastFed(props.lastFed)}
                     />
                 </div>
-                <div className="col-12 col-sm-12 col-lg-4">
+                <div className="col-12 col-sm-6 col-lg-3">
                      <StatusCard
                         icon="fa-solid fa-angles-right"
                         title="Próxima Comida"
@@ -54,7 +65,13 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
             </div>
 
             <div className="mt-4">
-                <ControlPanel onDispense={props.onDispense} isDispensing={props.isDispensing} disabled={props.foodLevel === 0} />
+                <ControlPanel 
+                    onDispense={props.onDispense} 
+                    onDispenseWater={props.onDispenseWater}
+                    isDispensing={props.isDispensing} 
+                    disabled={props.foodLevel === 0} 
+                    waterDisabled={props.waterLevel === 0}
+                />
             </div>
             
             <div className="row g-4 mt-1">

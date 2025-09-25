@@ -24,6 +24,10 @@ const mealPlanSchema = {
         type: Type.NUMBER,
         description: "El total de calorías diarias recomendadas para la mascota."
     },
+    dailyWaterIntakeMl: {
+        type: Type.NUMBER,
+        description: "El total de ingesta de agua diaria recomendada para la mascota en mililitros."
+    },
     mealPortions: {
       type: Type.ARRAY,
       description: "Una lista de comidas recomendadas, incluyendo el tamaño de la porción y la hora de la comida.",
@@ -45,7 +49,7 @@ const mealPlanSchema = {
         }
     }
   },
-  required: ["dailyCalories", "mealPortions", "feedingTips"],
+  required: ["dailyCalories", "dailyWaterIntakeMl", "mealPortions", "feedingTips"],
 };
 
 const createMockMealPlan = (profile: PetProfile): MealPlan => {
@@ -56,9 +60,11 @@ const createMockMealPlan = (profile: PetProfile): MealPlan => {
 
     const dailyCalories = baseCalories * activityMultiplier;
     const totalGrams = dailyCalories / 3.5; // Avg kcal per gram of pet food
+    const dailyWaterIntakeMl = profile.weight * 60; // A common estimate: 60ml per kg
 
     return {
         dailyCalories: dailyCalories,
+        dailyWaterIntakeMl: dailyWaterIntakeMl,
         mealPortions: [
             { meal: 'Desayuno', grams: Math.round(totalGrams / 2), time: '08:00' },
             { meal: 'Cena', grams: Math.round(totalGrams / 2), time: '18:00' },
@@ -85,7 +91,7 @@ export const generateMealPlan = async (profile: PetProfile): Promise<MealPlan> =
     - Edad: ${profile.age} años
     - Nivel de Actividad: ${profile.activityLevel}
 
-    Por favor, proporciona la salida en un formato JSON estructurado. El plan debe incluir la ingesta calórica diaria total, un desglose de las porciones de comida en gramos con horarios de alimentación sugeridos y 2-3 consejos de alimentación concisos.
+    Por favor, proporciona la salida en un formato JSON estructurado. El plan debe incluir la ingesta calórica diaria total, la ingesta de agua diaria recomendada en mililitros, un desglose de las porciones de comida en gramos con horarios de alimentación sugeridos y 2-3 consejos de alimentación concisos.
     `;
     
     try {
@@ -106,7 +112,7 @@ export const generateMealPlan = async (profile: PetProfile): Promise<MealPlan> =
         const parsedPlan = JSON.parse(jsonText.trim());
 
         // Basic validation
-        if (!parsedPlan.dailyCalories || !parsedPlan.mealPortions || !parsedPlan.feedingTips) {
+        if (!parsedPlan.dailyCalories || !parsedPlan.dailyWaterIntakeMl || !parsedPlan.mealPortions || !parsedPlan.feedingTips) {
           throw new Error("Se recibió un plan de comidas incompleto de la API.");
         }
 

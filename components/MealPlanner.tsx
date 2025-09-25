@@ -85,9 +85,22 @@ export const MealPlanner: React.FC = () => {
           {mealPlan && (
             <div className="fade-in">
               <h3 className="h6">Plan de Comidas Generado</h3>
-              <div className="card bg-light mb-3">
-                  <div className="card-body">
-                    <p><strong>Calorías Diarias:</strong> {mealPlan.dailyCalories.toFixed(0)} kcal</p>
+                <div className="row g-3 mb-3">
+                  <div className="col-6">
+                      <div className="card bg-light h-100">
+                          <div className="card-body text-center">
+                            <p className="small text-muted mb-0">Calorías Diarias</p>
+                            <p className="h5 fw-bold mb-0">{mealPlan.dailyCalories.toFixed(0)} kcal</p>
+                          </div>
+                      </div>
+                  </div>
+                  <div className="col-6">
+                      <div className="card bg-light h-100">
+                          <div className="card-body text-center">
+                             <p className="small text-muted mb-0">Agua Diaria</p>
+                             <p className="h5 fw-bold mb-0">{mealPlan.dailyWaterIntakeMl.toFixed(0)} ml</p>
+                          </div>
+                      </div>
                   </div>
               </div>
               <div>
