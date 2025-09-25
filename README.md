@@ -2,6 +2,8 @@ GUIA EN LA CARPETA "LEER"
 
 CAPTURAS
 
+<img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/cc213dd4-4aa7-47ad-aa5d-424afb7a638b" />
+
 <img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/8d2230f9-8c21-4a18-9831-3c4d3322ad7c" />
 
 <img width="1366" height="768" alt="image" src="https://github.com/user-attachments/assets/8df17c20-1ac8-4402-8720-948255f5d29b" />
