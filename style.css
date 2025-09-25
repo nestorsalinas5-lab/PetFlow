@@ -12,6 +12,8 @@
   --pf-primary-text: #ffffff;
   --pf-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.07);
   --pf-font-family: 'Inter', sans-serif;
+  --sidebar-width: 260px;
+  --header-height: 60px;
 }
 
 html[data-bs-theme="dark"] {
@@ -31,10 +33,24 @@ body {
   background-color: var(--pf-bg-primary);
   color: var(--pf-text-primary);
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden;
 }
 
 html, body, #root {
   height: 100%;
+}
+
+.app-container {
+  display: flex;
+  height: 100vh;
+}
+
+.main-content-wrapper {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
 }
 
 .main-content {
@@ -45,12 +61,64 @@ html, body, #root {
 }
 
 .sidebar {
-    width: 260px;
-    min-width: 260px;
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
     background-color: var(--pf-bg-secondary);
     border-right: 1px solid var(--pf-border-color);
     transition: background-color 0.3s ease, border-color 0.3s ease;
+    z-index: 1050;
 }
+
+.header {
+  height: var(--header-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 1rem;
+  background-color: var(--pf-bg-secondary);
+  border-bottom: 1px solid var(--pf-border-color);
+  position: sticky;
+  top: 0;
+  z-index: 1020;
+}
+
+/* --- Responsive Design --- */
+@media (max-width: 991.98px) {
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease-in-out;
+  }
+  .sidebar.open {
+    transform: translateX(0);
+  }
+  .sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1040;
+  }
+  .main-content {
+      padding-top: var(--header-height);
+  }
+}
+
+@media (min-width: 992px) {
+    .app-container {
+        display: flex;
+        flex-direction: row;
+    }
+    .main-content-wrapper {
+        width: calc(100% - var(--sidebar-width));
+    }
+}
+
 
 .card {
     background-color: var(--pf-bg-secondary);

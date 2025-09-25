@@ -14,8 +14,8 @@ const ManualDispenseView: React.FC<ManualDispenseViewProps> = ({ onDispense, onD
     const [selectedPet, setSelectedPet] = useState<'Todos' | 'Perro' | 'Gato'>('Todos');
 
     return (
-        <div className="d-flex justify-content-center align-items-center h-100">
-            <div className="card shadow-sm" style={{ maxWidth: '450px', width: '100%'}}>
+        <div className="d-flex justify-content-center align-items-start align-items-md-center h-100">
+            <div className="card shadow-sm w-100" style={{ maxWidth: '450px'}}>
                 <div className="card-header text-center">
                     <h2 className="h4 mb-0">
                         <i className="fa-solid fa-hand-point-up me-2"></i>

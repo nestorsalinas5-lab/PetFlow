@@ -10,6 +10,7 @@ import ManualDispenseView from './views/ManualDispenseView';
 import MealPlannerView from './views/MealPlannerView';
 import ConsumptionView from './views/ConsumptionView';
 import LoginView from './views/LoginView';
+import { Header } from './components/Header';
 
 // Declare Swal to satisfy TypeScript since it's loaded from a CDN
 declare const Swal: any;
@@ -38,6 +39,7 @@ const App: React.FC = () => {
     { id: 3, name: 'Furer', type: 'Perro', weight: 24, breed: 'Pastor Alemán' },
   ]);
   const [isDispensing, setIsDispensing] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // Theme management
   useEffect(() => {
@@ -123,6 +125,11 @@ const App: React.FC = () => {
     showToast('¡Nuevo horario añadido!', true);
   };
 
+  const changeView = (view: View) => {
+    setActiveView(view);
+    setIsSidebarOpen(false); // Close sidebar on view change
+  };
+
 
   const getNextFeeding = () => {
     const now = new Date();
@@ -190,17 +197,25 @@ const App: React.FC = () => {
   }
 
   return (
-    <div className="d-flex vh-100">
-      <Sidebar 
+    <div className="app-container">
+       <Sidebar 
         activeView={activeView} 
-        setActiveView={setActiveView} 
+        setActiveView={changeView} 
         onLogout={handleLogout}
         theme={theme}
         toggleTheme={toggleTheme}
+        isOpen={isSidebarOpen}
+        setIsOpen={setIsSidebarOpen}
       />
-      <main className="main-content p-4">
-        {renderView()}
-      </main>
+      <div className={`main-content-wrapper ${isSidebarOpen ? 'sidebar-open' : ''}`}>
+        <Header 
+            activeView={activeView}
+            toggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
+        />
+        <main className="main-content p-3 p-md-4">
+          {renderView()}
+        </main>
+      </div>
     </div>
   );
 };

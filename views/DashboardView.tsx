@@ -28,11 +28,11 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
     };
 
     return (
-        <div className="container-fluid">
-            <h1 className="h2 mb-4">Dashboard</h1>
+        <div className="container-fluid px-0 px-md-2">
+            <h1 className="h2 mb-4 d-none d-lg-block">Dashboard</h1>
             
-            <div className="row g-4">
-                <div className="col-12 col-sm-6 col-lg-3">
+            <div className="row g-3 g-lg-4">
+                <div className="col-6 col-lg-3">
                     <StatusCard
                         icon="fa-solid fa-bowl-food"
                         title="Nivel de Comida"
@@ -40,7 +40,7 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
                         progress={props.foodLevel}
                     />
                 </div>
-                <div className="col-12 col-sm-6 col-lg-3">
+                <div className="col-6 col-lg-3">
                     <StatusCard
                         icon="fa-solid fa-droplet"
                         title="Nivel de Agua"
@@ -48,14 +48,14 @@ const DashboardView: React.FC<DashboardViewProps> = (props) => {
                         progress={props.waterLevel}
                     />
                 </div>
-                <div className="col-12 col-sm-6 col-lg-3">
+                <div className="col-6 col-lg-3">
                     <StatusCard
                         icon="fa-solid fa-clock"
-                        title="Última Dispensación"
+                        title="Última Vez"
                         value={formatLastFed(props.lastFed)}
                     />
                 </div>
-                <div className="col-12 col-sm-6 col-lg-3">
+                <div className="col-6 col-lg-3">
                      <StatusCard
                         icon="fa-solid fa-angles-right"
                         title="Próxima Comida"

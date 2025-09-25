@@ -28,7 +28,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onDispense, onDispen
   return (
     <div className="card">
       <div className="card-body">
-        <div className="row g-3 align-items-end">
+        <div className="row g-3 align-items-lg-end">
           {/* Sliders */}
           <div className="col-12 col-lg">
             <div className="row g-3">
@@ -68,12 +68,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onDispense, onDispen
           </div>
           {/* Buttons */}
           <div className="col-12 col-lg-auto">
-            <div className="d-flex gap-2">
+            <div className="d-grid d-sm-flex gap-2">
                 <button
                     onClick={handleDispenseFoodClick}
                     disabled={isDispensing || disabled}
                     className="btn btn-primary btn-lg flex-grow-1"
-                    style={{ minWidth: '180px' }}
                 >
                 {isDispensing ? (
                     <>
@@ -91,7 +90,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onDispense, onDispen
                     onClick={handleDispenseWaterClick}
                     disabled={isDispensing || waterDisabled}
                     className="btn btn-info btn-lg flex-grow-1 text-white"
-                    style={{ minWidth: '180px' }}
                 >
                 {isDispensing ? (
                     <>
