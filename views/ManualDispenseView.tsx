@@ -10,7 +10,7 @@ interface ManualDispenseViewProps {
 
 const ManualDispenseView: React.FC<ManualDispenseViewProps> = ({ onDispense, onDispenseWater, isDispensing }) => {
     const [foodPortion, setFoodPortion] = useState(60);
-    const waterPortion = 150; // Fixed water portion for simplicity
+    const [waterPortion, setWaterPortion] = useState(150);
     const [selectedPet, setSelectedPet] = useState<'Todos' | 'Perro' | 'Gato'>('Todos');
 
     return (
@@ -126,9 +126,20 @@ const ManualDispenseView: React.FC<ManualDispenseViewProps> = ({ onDispense, onD
 
                     {/* Water Dispenser */}
                     <div className="p-3 border rounded">
-                        <p className="form-label">
-                          Porción de Agua: <span className="fw-bold text-info">{waterPortion}ml</span> (fijo)
-                        </p>
+                        <label htmlFor="water-portion-slider" className="form-label">
+                          Porción de Agua: <span className="fw-bold text-info">{waterPortion}ml</span>
+                        </label>
+                        <input
+                          id="water-portion-slider"
+                          type="range"
+                          min="50"
+                          max="300"
+                          step="10"
+                          value={waterPortion}
+                          onChange={(e) => setWaterPortion(Number(e.target.value))}
+                          disabled={isDispensing}
+                          className="form-range mb-3"
+                        />
                         <div className="d-grid">
                             <button
                                 onClick={() => onDispenseWater(waterPortion, selectedPet)}
