@@ -17,8 +17,9 @@ const navItems: { view: View; label: string; icon: string }[] = [
   { view: 'schedules', label: 'Horarios', icon: 'fa-solid fa-calendar-days' },
   { view: 'pet-profiles', label: 'Perfiles', icon: 'fa-solid fa-paw' },
   { view: 'manual-dispense', label: 'Dispensar', icon: 'fa-solid fa-cube' },
+  { view: 'ai-planner', label: 'Planificador IA', icon: 'fa-solid fa-wand-magic-sparkles' },
+  { view: 'camera', label: 'Cámara', icon: 'fa-solid fa-video' },
   { view: 'consumption', label: 'Consumo', icon: 'fa-solid fa-chart-line' },
-  { view: 'meal-planner', label: 'Planificador IA', icon: 'fa-solid fa-wand-magic-sparkles' },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ activeView, setActiveView, onLogout, theme, toggleTheme, isOpen, setIsOpen }) => {

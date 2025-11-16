@@ -9,45 +9,79 @@ declare const Swal: any;
 interface PetProfilesViewProps {
   profiles: PetProfile[];
   onAddPet: (pet: Omit<PetProfile, 'id'>) => void;
+  onUpdatePet: (pet: PetProfile) => void;
+  onDeletePet: (id: number) => void;
 }
 
-const PetProfilesView: React.FC<PetProfilesViewProps> = ({ profiles, onAddPet }) => {
+const PetProfilesView: React.FC<PetProfilesViewProps> = ({ profiles, onAddPet, onUpdatePet, onDeletePet }) => {
   const [showModal, setShowModal] = useState(false);
-  const initialFormState = {
+  const [editingPet, setEditingPet] = useState<PetProfile | null>(null);
+  const initialFormState: Omit<PetProfile, 'id'> = {
     name: '',
-    type: 'Perro' as 'Perro' | 'Gato',
+    type: 'Perro',
     weight: 5,
     breed: ''
   };
-  const [newPet, setNewPet] = useState(initialFormState);
+  const [formData, setFormData] = useState(initialFormState);
 
-  const handleShowModal = () => setShowModal(true);
+  const handleShowModal = (pet: PetProfile | null = null) => {
+    if (pet) {
+      setEditingPet(pet);
+      setFormData(pet);
+    } else {
+      setEditingPet(null);
+      setFormData(initialFormState);
+    }
+    setShowModal(true);
+  };
   
   const handleCloseModal = () => {
     setShowModal(false);
-    setNewPet(initialFormState); // Reset form on close
+    setEditingPet(null);
+    setFormData(initialFormState); // Reset form on close
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setNewPet(prev => ({
+    setFormData(prev => ({
       ...prev,
       [name]: name === 'weight' ? Number(value) : value
     }));
   };
 
   const handleSavePet = () => {
-    if (!newPet.name.trim() || !newPet.breed.trim() || newPet.weight <= 0) {
+    if (!formData.name.trim() || !formData.breed.trim() || formData.weight <= 0) {
       Swal.fire({
         title: 'Campos Incompletos',
-        text: 'Por favor, completa todos los campos para añadir a tu mascota.',
+        text: 'Por favor, completa todos los campos para guardar la mascota.',
         icon: 'warning',
         confirmButtonText: 'Entendido'
       });
       return;
     }
-    onAddPet(newPet);
+    if (editingPet) {
+        onUpdatePet({ ...formData, id: editingPet.id });
+    } else {
+        onAddPet(formData);
+    }
     handleCloseModal();
+  };
+  
+  const handleDeleteClick = (pet: PetProfile) => {
+    Swal.fire({
+        title: `¿Eliminar a ${pet.name}?`,
+        text: "Esta acción no se puede deshacer.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result: any) => {
+        if (result.isConfirmed) {
+            onDeletePet(pet.id);
+        }
+    });
   };
 
 
@@ -55,7 +89,7 @@ const PetProfilesView: React.FC<PetProfilesViewProps> = ({ profiles, onAddPet })
     <div className="container-fluid">
       <div className="d-flex justify-content-between align-items-center mb-4">
         <h1 className="h2 mb-0">Perfiles de Mascotas</h1>
-        <button className="btn btn-primary" onClick={handleShowModal}>
+        <button className="btn btn-primary" onClick={() => handleShowModal()}>
           <i className="fa-solid fa-plus me-2"></i>
           Añadir Mascota
         </button>
@@ -78,47 +112,54 @@ const PetProfilesView: React.FC<PetProfilesViewProps> = ({ profiles, onAddPet })
                 </p>
               </div>
             </div>
-            <button className="btn btn-outline-secondary">
-              Editar
-            </button>
+            <div className="btn-group">
+                <button className="btn btn-outline-secondary" onClick={() => handleShowModal(profile)}>
+                  Editar
+                </button>
+                <button className="btn btn-outline-danger" onClick={() => handleDeleteClick(profile)}>
+                  Eliminar
+                </button>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Add Pet Modal */}
+      {/* Add/Edit Pet Modal */}
       <div className={`modal fade ${showModal ? 'show d-block' : ''}`} tabIndex={-1} style={{ backgroundColor: showModal ? 'rgba(0, 0, 0, 0.5)' : 'transparent' }}>
         <div className="modal-dialog modal-dialog-centered">
           <div className="modal-content">
             <div className="modal-header">
-              <h5 className="modal-title">Añadir Nueva Mascota</h5>
+              <h5 className="modal-title">{editingPet ? 'Editar Mascota' : 'Añadir Nueva Mascota'}</h5>
               <button type="button" className="btn-close" onClick={handleCloseModal} aria-label="Close"></button>
             </div>
             <div className="modal-body">
               <form>
                 <div className="mb-3">
                   <label htmlFor="name" className="form-label">Nombre</label>
-                  <input type="text" className="form-control" id="name" name="name" value={newPet.name} onChange={handleInputChange} required placeholder="Ej: Rex"/>
+                  <input type="text" className="form-control" id="name" name="name" value={formData.name} onChange={handleInputChange} required placeholder="Ej: Rex"/>
                 </div>
                 <div className="mb-3">
                   <label htmlFor="type" className="form-label">Tipo</label>
-                  <select className="form-select" id="type" name="type" value={newPet.type} onChange={handleInputChange}>
+                  <select className="form-select" id="type" name="type" value={formData.type} onChange={handleInputChange}>
                     <option value="Perro">Perro</option>
                     <option value="Gato">Gato</option>
                   </select>
                 </div>
                 <div className="mb-3">
                   <label htmlFor="weight" className="form-label">Peso (KG)</label>
-                  <input type="number" className="form-control" id="weight" name="weight" value={newPet.weight} onChange={handleInputChange} required min="0.1" step="0.1" />
+                  <input type="number" className="form-control" id="weight" name="weight" value={formData.weight} onChange={handleInputChange} required min="0.1" step="0.1" />
                 </div>
                 <div className="mb-3">
                   <label htmlFor="breed" className="form-label">Raza</label>
-                  <input type="text" className="form-control" id="breed" name="breed" value={newPet.breed} onChange={handleInputChange} required placeholder="Ej: Pastor Alemán"/>
+                  <input type="text" className="form-control" id="breed" name="breed" value={formData.breed} onChange={handleInputChange} required placeholder="Ej: Pastor Alemán"/>
                 </div>
               </form>
             </div>
             <div className="modal-footer">
               <button type="button" className="btn btn-secondary" onClick={handleCloseModal}>Cancelar</button>
-              <button type="button" className="btn btn-primary" onClick={handleSavePet}>Guardar Mascota</button>
+              <button type="button" className="btn btn-primary" onClick={handleSavePet}>
+                {editingPet ? 'Guardar Cambios' : 'Guardar Mascota'}
+              </button>
             </div>
           </div>
         </div>

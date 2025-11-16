@@ -21,11 +21,10 @@ export const HistoryList: React.FC<HistoryListProps> = ({ history }) => {
           <ul className="list-group list-group-flush" style={{ maxHeight: '300px', overflowY: 'auto' }}>
             {history.map(entry => {
               const timeAgoOptions = { addSuffix: true, locale: es };
-              const isFood = entry.substance === 'Food';
-              const icon = isFood ? 'fa-solid fa-bowl-food' : 'fa-solid fa-tint';
+              const icon = 'fa-solid fa-tint';
               const color = entry.type === 'Scheduled' ? 'text-success' : 'text-primary';
-              const unit = isFood ? 'g' : 'ml';
-              const title = `${isFood ? 'Comida' : 'Agua'} (${entry.type === 'Scheduled' ? 'Programada' : 'Manual'})`;
+              const unit = 'ml';
+              const title = `Agua (${entry.type === 'Scheduled' ? 'Programada' : 'Manual'})`;
               
               return (
                 <li key={entry.id} className="list-group-item d-flex justify-content-between align-items-center">

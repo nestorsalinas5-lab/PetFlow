@@ -3,13 +3,11 @@ import catImage from '../assets/cat.png';
 import dogImage from '../assets/dog.png';
 
 interface ManualDispenseViewProps {
-    onDispense: (amount: number, pet: string) => void;
     onDispenseWater: (amount: number, pet: string) => void;
     isDispensing: boolean;
 }
 
-const ManualDispenseView: React.FC<ManualDispenseViewProps> = ({ onDispense, onDispenseWater, isDispensing }) => {
-    const [foodPortion, setFoodPortion] = useState(60);
+const ManualDispenseView: React.FC<ManualDispenseViewProps> = ({ onDispenseWater, isDispensing }) => {
     const [waterPortion, setWaterPortion] = useState(150);
     const [selectedPet, setSelectedPet] = useState<'Todos' | 'Perro' | 'Gato'>('Todos');
 
@@ -84,43 +82,6 @@ const ManualDispenseView: React.FC<ManualDispenseViewProps> = ({ onDispense, onD
                                     </button>
                                 </li>
                             </ul>
-                        </div>
-                    </div>
-
-                    {/* Food Dispenser */}
-                    <div className="p-3 border rounded mb-4">
-                        <label htmlFor="food-portion-slider" className="form-label">
-                          Porción de Comida: <span className="fw-bold text-primary">{foodPortion}g</span>
-                        </label>
-                        <input
-                          id="food-portion-slider"
-                          type="range"
-                          min="10"
-                          max="100"
-                          step="5"
-                          value={foodPortion}
-                          onChange={(e) => setFoodPortion(Number(e.target.value))}
-                          disabled={isDispensing}
-                          className="form-range mb-3"
-                        />
-                        <div className="d-grid">
-                            <button
-                                onClick={() => onDispense(foodPortion, selectedPet)}
-                                disabled={isDispensing}
-                                className="btn btn-primary"
-                            >
-                                {isDispensing ? (
-                                  <>
-                                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                                    Dispensando...
-                                  </>
-                                ) : (
-                                  <>
-                                    <i className="fa-solid fa-bowl-food me-2"></i>
-                                    Dispensar Comida
-                                  </>
-                                )}
-                            </button>
                         </div>
                     </div>
 

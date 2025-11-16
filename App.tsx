@@ -1,15 +1,18 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Sidebar } from './components/Sidebar';
-import type { Schedule, HistoryEntry, PetProfile, View, Substance } from './types';
+import type { Schedule, HistoryEntry, PetProfile, View, Substance, AIWaterPlanEntry } from './types';
+import { getDeviceStatus } from './services/deviceService';
+import { generateWaterPlan } from './services/geminiService';
 
 // Import Views
 import DashboardView from './views/DashboardView';
 import SchedulesView from './views/SchedulesView';
 import PetProfilesView from './views/PetProfilesView';
 import ManualDispenseView from './views/ManualDispenseView';
-import MealPlannerView from './views/MealPlannerView';
 import ConsumptionView from './views/ConsumptionView';
 import LoginView from './views/LoginView';
+import CameraView from './views/CameraView';
+import AIPlannerView from './views/AIPlannerView';
 import { Header } from './components/Header';
 
 // Declare Swal to satisfy TypeScript since it's loaded from a CDN
@@ -20,32 +23,52 @@ const App: React.FC = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [activeView, setActiveView] = useState<View>('dashboard');
   const [theme, setTheme] = useState(localStorage.getItem('petflow-theme') || 'light');
-  const [foodLevel, setFoodLevel] = useState(73); // Percentage
-  const [waterLevel, setWaterLevel] = useState(85); // Percentage
+  const [waterLevel, setWaterLevel] = useState(0); // Percentage
+  const [boxStatus, setBoxStatus] = useState('Cargando...');
   const [schedules, setSchedules] = useState<Schedule[]>([
-    { id: 1, time: '07:00', amount: 70, substance: 'Food', pet: 'Perro - 70KG', enabled: true },
-    { id: 2, time: '19:00', amount: 70, substance: 'Food', pet: 'Perro - 70KG', enabled: true },
-    { id: 4, time: '10:00', amount: 150, substance: 'Water', pet: 'Todos', enabled: true },
-    { id: 3, time: '12:00', amount: 30, substance: 'Food', pet: 'Gato - 4KG', enabled: false },
+    { id: 1, time: '10:00', amount: 150, substance: 'Water', pet: 'Todos', enabled: true },
+    { id: 2, time: '14:00', amount: 100, substance: 'Water', pet: 'Perro', enabled: true },
+    { id: 3, time: '18:00', amount: 200, substance: 'Water', pet: 'Todos', enabled: false },
   ]);
   const [history, setHistory] = useState<HistoryEntry[]>([
-     { id: 1, time: new Date(), amount: 50, substance: 'Food', type: 'Manual', pet: 'Rex' },
-    { id: 2, time: new Date(Date.now() - 3 * 60 * 60 * 1000), amount: 70, substance: 'Food', type: 'Scheduled', pet: 'Furer' },
-    { id: 3, time: new Date(Date.now() - 15 * 60 * 60 * 1000), amount: 70, substance: 'Food', type: 'Scheduled', pet: 'Faraon' },
+     { id: 1, time: new Date(), amount: 150, substance: 'Water', type: 'Manual', pet: 'Perro' },
+    { id: 2, time: new Date(Date.now() - 3 * 60 * 60 * 1000), amount: 100, substance: 'Water', type: 'Scheduled', pet: 'Todos' },
   ]);
    const [petProfiles, setPetProfiles] = useState<PetProfile[]>([
     { id: 1, name: 'Rex', type: 'Perro', weight: 3, breed: 'Chihuahua' },
     { id: 2, name: 'Faraon', type: 'Gato', weight: 4, breed: 'Sphynx' },
     { id: 3, name: 'Furer', type: 'Perro', weight: 24, breed: 'Pastor Alemán' },
+     { id: 4, name: 'Pupi', type: 'Perro', weight: 5, breed: 'pastor aleman' },
   ]);
   const [isDispensing, setIsDispensing] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [aiWaterPlan, setAiWaterPlan] = useState<AIWaterPlanEntry[] | null>(null);
+  const [isGeneratingPlan, setIsGeneratingPlan] = useState(false);
   
   // Theme management
   useEffect(() => {
     document.documentElement.setAttribute('data-bs-theme', theme);
     localStorage.setItem('petflow-theme', theme);
   }, [theme]);
+
+  // Fetch device status periodically
+  useEffect(() => {
+    const fetchStatus = async () => {
+        try {
+            const status = await getDeviceStatus();
+            setWaterLevel(status.waterLevel);
+            setBoxStatus(status.boxStatus);
+        } catch (error) {
+            console.error("Error fetching device status:", error);
+            setBoxStatus('Error');
+        }
+    };
+
+    fetchStatus(); // Fetch immediately on mount
+    const intervalId = setInterval(fetchStatus, 5000); // Fetch every 5 seconds
+
+    return () => clearInterval(intervalId); // Cleanup on unmount
+  }, []);
 
   const toggleTheme = () => {
     setTheme(prevTheme => (prevTheme === 'light' ? 'dark' : 'light'));
@@ -70,28 +93,15 @@ const App: React.FC = () => {
   const addHistoryEntry = useCallback((amount: number, type: 'Manual' | 'Scheduled', substance: Substance, pet: string) => {
     setHistory(prev => [{ id: Date.now(), time: new Date(), amount, type, substance, pet }, ...prev].slice(0, 20));
   }, []);
-
-  const handleDispense = useCallback((amount: number, pet: string) => {
-    if (foodLevel > 0 && !isDispensing) {
-      setIsDispensing(true);
-      showToast(`Dispensando comida para ${pet}...`);
-      setTimeout(() => {
-        const foodToDispense = Math.min(foodLevel, (amount / 100) * 5); // Dispense a small portion
-        setFoodLevel(prev => Math.max(0, prev - foodToDispense));
-        addHistoryEntry(amount, 'Manual', 'Food', pet);
-        setIsDispensing(false);
-        showToast(`¡Se dispensaron ${amount}g de comida para ${pet}!`, true);
-      }, 1500);
-    }
-  }, [foodLevel, isDispensing, addHistoryEntry]);
   
   const handleDispenseWater = useCallback((amount: number, pet: string) => {
     if (waterLevel > 0 && !isDispensing) {
         setIsDispensing(true);
         showToast(`Dispensando agua para ${pet}...`);
         setTimeout(() => {
-            const waterToDispense = Math.min(waterLevel, (amount / 150) * 5); // Dispense a small portion of water level
-            setWaterLevel(prev => Math.max(0, prev - waterToDispense));
+            // This logic will be handled by the backend. The frontend will update based on the next status poll.
+            // For now, we simulate a small decrease for immediate feedback.
+            setWaterLevel(prev => Math.max(0, prev - 5));
             addHistoryEntry(amount, 'Manual', 'Water', pet);
             setIsDispensing(false);
             showToast(`¡Se dispensaron ${amount}ml de agua para ${pet}!`, true);
@@ -101,7 +111,6 @@ const App: React.FC = () => {
 
   const toggleSchedule = useCallback((id: number) => {
     setSchedules(prev =>
-      // Fix: Correctly toggles the 'enabled' property by using '!s.enabled' and removing the duplicate 'enabled' key.
       prev.map(s => (s.id === id ? { ...s, enabled: !s.enabled } : s))
     );
   }, []);
@@ -115,47 +124,85 @@ const App: React.FC = () => {
     showToast('¡Nueva mascota añadida!', true);
   };
 
-  const handleAddSchedule = (scheduleData: Omit<Schedule, 'id' | 'enabled'>) => {
+  const handleUpdatePet = (updatedPet: PetProfile) => {
+    setPetProfiles(prev => prev.map(p => p.id === updatedPet.id ? updatedPet : p));
+    showToast('¡Perfil de mascota actualizado!', true);
+  };
+  
+  const handleDeletePet = (petId: number) => {
+    setPetProfiles(prev => prev.filter(p => p.id !== petId));
+    showToast('Mascota eliminada.', true);
+  };
+
+  const handleAddSchedule = (scheduleData: Omit<Schedule, 'id' | 'enabled' | 'substance'>) => {
     const newSchedule: Schedule = {
       id: Date.now(),
       ...scheduleData,
-      enabled: true, // New schedules are enabled by default
+      substance: 'Water',
+      enabled: true,
     };
     setSchedules(prev => [...prev, newSchedule].sort((a,b) => a.time.localeCompare(b.time)));
     showToast('¡Nuevo horario añadido!', true);
   };
+
+  const handleUpdateSchedule = (updatedSchedule: Schedule) => {
+    setSchedules(prev => 
+      prev
+        .map(s => (s.id === updatedSchedule.id ? updatedSchedule : s))
+        .sort((a,b) => a.time.localeCompare(b.time))
+    );
+    showToast('¡Horario actualizado!', true);
+  };
+  
+  const handleDeleteSchedule = (scheduleId: number) => {
+    setSchedules(prev => prev.filter(s => s.id !== scheduleId));
+    showToast('Horario eliminado.', true);
+  };
+
+
+  const handleGenerateWaterPlan = useCallback(async () => {
+    setIsGeneratingPlan(true);
+    setAiWaterPlan(null);
+    try {
+      const plan = await generateWaterPlan(petProfiles);
+      setAiWaterPlan(plan);
+    } catch (error) {
+      console.error("Error generating water plan:", error);
+      Swal.fire({
+        title: 'Error de IA',
+        text: 'No se pudo generar el plan de hidratación. Por favor, inténtalo de nuevo.',
+        icon: 'error',
+      });
+    } finally {
+      setIsGeneratingPlan(false);
+    }
+  }, [petProfiles]);
+  
+  const handleApplyWaterPlan = useCallback((plan: AIWaterPlanEntry[]) => {
+    const newSchedules: Schedule[] = plan.map((p, index) => ({
+      id: Date.now() + index,
+      time: p.time,
+      amount: p.amount,
+      substance: 'Water',
+      pet: 'Todos',
+      enabled: true,
+    }));
+    setSchedules(newSchedules.sort((a,b) => a.time.localeCompare(b.time)));
+    showToast('¡Plan de hidratación aplicado!', true);
+    setActiveView('schedules');
+  }, []);
 
   const changeView = (view: View) => {
     setActiveView(view);
     setIsSidebarOpen(false); // Close sidebar on view change
   };
 
-
-  const getNextFeeding = () => {
-    const now = new Date();
-    const currentTime = now.getHours() * 60 + now.getMinutes();
-
-    const upcoming = schedules
-      .filter(s => s.enabled && s.substance === 'Food')
-      .map(s => {
-        const [hours, minutes] = s.time.split(':').map(Number);
-        return { ...s, totalMinutes: hours * 60 + minutes };
-      })
-      .sort((a, b) => a.totalMinutes - b.totalMinutes);
-
-    const nextToday = upcoming.find(s => s.totalMinutes > currentTime);
-    return nextToday ? nextToday.time : upcoming[0]?.time || 'Ninguna';
-  };
-
   const renderView = () => {
     switch (activeView) {
       case 'dashboard':
         return <DashboardView 
-                  foodLevel={foodLevel} 
                   waterLevel={waterLevel}
-                  lastFed={history[0]?.time}
-                  nextFeeding={getNextFeeding()}
-                  onDispense={(amount) => handleDispense(amount, 'Todos')}
+                  boxStatus={boxStatus}
                   onDispenseWater={(amount) => handleDispenseWater(amount, 'Todos')}
                   isDispensing={isDispensing}
                   schedules={schedules}
@@ -163,26 +210,41 @@ const App: React.FC = () => {
                   history={history}
                 />;
       case 'schedules':
-        return <SchedulesView schedules={schedules} onToggle={toggleSchedule} onAddSchedule={handleAddSchedule} />;
+        return <SchedulesView 
+                  schedules={schedules} 
+                  onToggle={toggleSchedule} 
+                  onAddSchedule={handleAddSchedule}
+                  onUpdateSchedule={handleUpdateSchedule}
+                  onDeleteSchedule={handleDeleteSchedule}
+               />;
       case 'pet-profiles':
-        return <PetProfilesView profiles={petProfiles} onAddPet={handleAddPet} />;
+        return <PetProfilesView 
+                  profiles={petProfiles} 
+                  onAddPet={handleAddPet}
+                  onUpdatePet={handleUpdatePet}
+                  onDeletePet={handleDeletePet}
+               />;
       case 'manual-dispense':
         return <ManualDispenseView 
-                onDispense={handleDispense} 
                 onDispenseWater={handleDispenseWater} 
                 isDispensing={isDispensing}
                 />;
       case 'consumption':
           return <ConsumptionView />;
-      case 'meal-planner':
-        return <MealPlannerView />;
+      case 'camera':
+        return <CameraView />;
+      case 'ai-planner':
+        return <AIPlannerView
+                  profiles={petProfiles}
+                  onGeneratePlan={handleGenerateWaterPlan}
+                  isGenerating={isGeneratingPlan}
+                  plan={aiWaterPlan}
+                  onApplyPlan={handleApplyWaterPlan}
+               />;
       default:
         return <DashboardView 
-                  foodLevel={foodLevel}
                   waterLevel={waterLevel}
-                  lastFed={history[0]?.time}
-                  nextFeeding={getNextFeeding()}
-                  onDispense={(amount) => handleDispense(amount, 'Todos')}
+                  boxStatus={boxStatus}
                   onDispenseWater={(amount) => handleDispenseWater(amount, 'Todos')}
                   isDispensing={isDispensing}
                   schedules={schedules}

@@ -12,7 +12,8 @@ const viewTitles: Record<View, string> = {
     'pet-profiles': 'Perfiles de Mascotas',
     'manual-dispense': 'Dispensación Manual',
     'consumption': 'Estadísticas de Consumo',
-    'meal-planner': 'Planificador IA'
+    'camera': 'Cámara',
+    'ai-planner': 'Planificador IA'
 };
 
 export const Header: React.FC<HeaderProps> = ({ toggleSidebar, activeView }) => {

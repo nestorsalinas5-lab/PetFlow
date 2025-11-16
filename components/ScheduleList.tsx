@@ -21,11 +21,13 @@ export const ScheduleList: React.FC<ScheduleListProps> = ({ schedules, onToggle 
             <li key={schedule.id} className="list-group-item d-flex justify-content-between align-items-center">
               <div>
                 <p className={`fw-bold fs-5 mb-0 ${schedule.enabled ? '' : 'text-muted'}`}>
-                   <i className={`me-2 ${schedule.substance === 'Food' ? 'fa-solid fa-bowl-food' : 'fa-solid fa-tint'}`}></i>
+                   {/* Fix: This comparison caused a type error because 'Food' is not a valid `Substance`. The icon is now statically set for 'Water'. */}
+                   <i className="fa-solid fa-tint me-2"></i>
                   {schedule.time}
                 </p>
                 <p className={`small mb-0 ${schedule.enabled ? 'text-body-secondary' : 'text-muted'}`}>
-                  {schedule.amount}{schedule.substance === 'Food' ? 'g' : 'ml'} - {schedule.pet}
+                  {/* Fix: This comparison caused a type error because 'Food' is not a valid `Substance`. The unit is now statically set to 'ml' for 'Water'. */}
+                  {schedule.amount}ml - {schedule.pet}
                 </p>
               </div>
               <div className="form-check form-switch">

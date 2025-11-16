@@ -1,11 +1,11 @@
-export type View = 'dashboard' | 'schedules' | 'pet-profiles' | 'manual-dispense' | 'consumption' | 'meal-planner';
+export type View = 'dashboard' | 'schedules' | 'pet-profiles' | 'manual-dispense' | 'consumption' | 'camera' | 'ai-planner';
 
-export type Substance = 'Food' | 'Water';
+export type Substance = 'Water';
 
 export interface Schedule {
   id: number;
   time: string;
-  amount: number; // in grams for Food, ml for Water
+  amount: number; // in ml for Water
   substance: Substance;
   pet: string;
   enabled: boolean;
@@ -14,7 +14,7 @@ export interface Schedule {
 export interface HistoryEntry {
   id: number;
   time: Date;
-  amount: number; // in grams for Food, ml for Water
+  amount: number; // in ml for Water
   substance: Substance;
   type: 'Scheduled' | 'Manual';
   pet?: string; // Para qué mascota fue
@@ -30,14 +30,7 @@ export interface PetProfile {
   activityLevel?: 'Bajo' | 'Moderado' | 'Alto';
 }
 
-
-export interface MealPlan {
-  dailyCalories: number;
-  dailyWaterIntakeMl: number;
-  mealPortions: {
-    meal: string;
-    grams: number;
+export interface AIWaterPlanEntry {
     time: string;
-  }[];
-  feedingTips: string[];
+    amount: number; // in ml
 }
