@@ -61,10 +61,10 @@ Activa una dispensación manual de agua. El backend debe actualizar el nivel del
     ```json
     {
       "amount": 150,     // ml de agua
-      "target": "Perro"  // Nombre de la mascota o grupo ("Todos", "Perro", "Gato")
+      "pet": "Perro"  // Nombre de la mascota o grupo ("Todos", "Perro", "Gato")
     }
     ```
-*   **Respuesta Exitosa (`200 OK`)**: Devuelve el nuevo nivel del contenedor.
+*   **Respuesta Exitosa (`200 OK`)**: Devuelve el nuevo estado del dispositivo.
     ```json
     {
       "waterLevel": 80 // Nuevo nivel de agua
@@ -122,12 +122,20 @@ Crea un nuevo horario de agua.
     }
     ```
 
-### **`PATCH /api/schedules/:id`**
+### **`PUT /api/schedules/:id`**
 
-Actualiza el estado `enabled` de un horario.
+Actualiza un horario existente por completo. También se usa para cambiar el estado `enabled`.
 
 *   **Autenticación**: Requerida.
-*   **Cuerpo de la Petición**: `{ "enabled": false }`
+*   **Cuerpo de la Petición**:
+    ```json
+    {
+        "time": "15:00",
+        "amount": 120,
+        "pet": "Gato",
+        "enabled": false 
+    }
+    ```
 *   **Respuesta Exitosa (`200 OK`)**: Devuelve el objeto del horario completo y actualizado.
 
 ### **`DELETE /api/schedules/:id`**
@@ -141,12 +149,28 @@ Elimina un horario.
 
 ## 5. Perfiles de Mascotas
 
-Gestiona los perfiles de las mascotas del usuario (sin cambios respecto a la guía anterior).
+Gestiona los perfiles de las mascotas del usuario.
 
 ### **`GET /api/pets`**
+
+Obtiene todos los perfiles de mascotas.
+
 ### **`POST /api/pets`**
+
+Crea un nuevo perfil de mascota.
+*   **Cuerpo de la Petición**: `{ "name": "Rex", "type": "Perro", "weight": 5, "breed": "Chihuahua" }`
+*   **Respuesta Exitosa (`201 Created`)**: Devuelve el perfil completo con su nuevo `id`.
+
 ### **`PUT /api/pets/:id`**
+
+Actualiza un perfil de mascota existente.
+*   **Cuerpo de la Petición**: `{ "name": "Rexy", "type": "Perro", "weight": 5.5, "breed": "Chihuahua" }`
+*   **Respuesta Exitosa (`200 OK`)**: Devuelve el perfil completo actualizado.
+
 ### **`DELETE /api/pets/:id`**
+
+Elimina un perfil de mascota.
+*   **Respuesta Exitosa (`204 No Content`)**.
 
 ---
 
